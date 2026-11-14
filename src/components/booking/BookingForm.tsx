@@ -1,7 +1,7 @@
 // src/components/booking/BookingForm.tsx
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition } from "react";
 import { format } from "date-fns";
 import { Clock, Upload, CheckCircle2, ChevronLeft, Loader2, PartyPopper } from "lucide-react";
 import Link from "next/link";
@@ -13,14 +13,9 @@ export function BookingForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // THE ULTIMATE FIX: useRef for the actual data
-  const selectedDateRef = useRef<string | undefined>(undefined);
-  const selectedTimeRef = useRef<string>("");
-  
-  // useState ONLY for visual updates
-  const [visualDate, setVisualDate] = useState<string | undefined>(undefined);
-  const [visualTime, setVisualTime] = useState<string>("");
-  
+  // These states are now completely outside the form
+  const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined);
+  const [time, setTime] = useState<string>("");
   const [inspoFile, setInspoFile] = useState<File | null>(null);
   
   const availableTimes = ["10:00 AM", "11:30 AM", "01:00 PM", "02:30 PM", "04:00 PM", "05:30 PM", "07:00 PM"];
@@ -28,20 +23,18 @@ export function BookingForm() {
   async function handleSubmit(formData: FormData) {
     setError(null);
     
-    const date = selectedDateRef.current;
-    const time = selectedTimeRef.current;
-
-    if (!date || !time) {
-      setError("Please select both a date and a time.");
-      return;
-    }
-    
     const data = new FormData();
     formData.forEach((value, key) => data.append(key, value));
     
-    data.append("date", date);
-    data.append("time", time);
+    // Append the state variables manually just in case
+    if (selectedDate) data.append("date", selectedDate);
+    if (time) data.append("time", time);
     if (inspoFile) data.append("inspoFile", inspoFile);
+
+    if (!selectedDate || !time) {
+      setError("Please select both a date and a time.");
+      return;
+    }
 
     startTransition(async () => {
       const result = await submitBooking(data);
@@ -97,7 +90,7 @@ export function BookingForm() {
           </div>
         )}
 
-        {/* STEP 1: Date & Time */}
+        {/* STEP 1: Date & Time (OUTSIDE THE FORM) */}
         <div className="space-y-4 relative z-20">
           <div className="flex items-center gap-2 mb-2">
             <span className="flex items-center justify-center w-6 h-6 rounded-full bg-pink-100 text-pink-600 text-xs font-bold">1</span>
@@ -105,33 +98,27 @@ export function BookingForm() {
           </div>
 
           <Calendar 
-            selectedDateString={visualDate} 
+            selectedDateString={selectedDate} 
             onSelectDate={(newDateStr) => {
-              selectedDateRef.current = newDateStr; // Save to ref securely
-              setVisualDate(newDateStr);            // Update visual state
-              
-              selectedTimeRef.current = "";         // Reset time safely
-              setVisualTime("");
+              setSelectedDate(newDateStr);
+              setTime(""); // Reset time when date changes
             }} 
           />
 
           {/* Time Slots */}
-          {visualDate && (
+          {selectedDate && (
             <div className="mt-4 relative z-10 animate-in fade-in slide-in-from-top-2">
               <p className="text-sm font-medium text-neutral-700 mb-3 flex items-center gap-2">
-                <Clock className="w-4 h-4" /> Available times for {format(new Date(visualDate), "MMM d, yyyy")}
+                <Clock className="w-4 h-4" /> Available times for {format(new Date(selectedDate), "MMM d, yyyy")}
               </p>
               <div className="grid grid-cols-3 gap-2">
                 {availableTimes.map((t) => (
                   <button
                     key={t}
                     type="button"
-                    onClick={() => {
-                      selectedTimeRef.current = t; // Save to ref securely
-                      setVisualTime(t);            // Update visual state
-                    }}
+                    onClick={() => setTime(t)}
                     className={`py-3 px-2 rounded-xl text-sm font-medium border transition-all select-none ${
-                      visualTime === t 
+                      time === t 
                         ? "bg-pink-500 text-white border-pink-500 shadow-md shadow-pink-500/20" 
                         : "bg-white text-neutral-700 border-neutral-200 active:border-pink-300"
                     }`}
