@@ -104,7 +104,7 @@ export function BookingForm() {
             <h2 className="font-medium text-neutral-900">Select Date & Time</h2>
           </div>
 
-          {/* Beautiful DayPicker Calendar (Fixed for Mobile) */}
+          {/* Beautiful DayPicker Calendar */}
           <div className="flex justify-center bg-neutral-50 rounded-2xl p-4 border border-neutral-100 overflow-hidden w-full">
             <DayPicker
               mode="single"
@@ -114,18 +114,7 @@ export function BookingForm() {
                 setTime(""); // Reset time if date changes
               }}
               disabled={{ before: new Date() }}
-              className="!w-full max-w-[300px] mx-auto"
-              classNames={{
-                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                month: "space-y-4 w-full",
-                table: "w-full border-collapse space-y-1",
-                head_row: "flex w-full",
-                head_cell: "text-neutral-500 rounded-md w-9 font-normal text-[0.8rem] flex-1",
-                row: "flex w-full mt-2",
-                cell: "text-center text-sm p-0 relative focus-within:relative focus-within:z-20 flex-1",
-                day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 mx-auto rounded-full hover:bg-pink-100",
-                selected: "bg-pink-500 text-white hover:bg-pink-600 focus:bg-pink-600",
-              }}
+              className="!w-full mx-auto"
             />
           </div>
 
