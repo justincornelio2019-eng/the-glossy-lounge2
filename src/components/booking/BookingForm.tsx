@@ -14,6 +14,7 @@ export function BookingForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Store date as a Date object
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState<string>("");
   const [inspoFile, setInspoFile] = useState<File | null>(null);
@@ -103,8 +104,8 @@ export function BookingForm() {
             <h2 className="font-medium text-neutral-900">Select Date & Time</h2>
           </div>
 
-          {/* Calendar */}
-          <div className="flex justify-center bg-neutral-50 rounded-2xl p-4 border border-neutral-100">
+          {/* Beautiful DayPicker Calendar (Fixed for Mobile) */}
+          <div className="flex justify-center bg-neutral-50 rounded-2xl p-4 border border-neutral-100 overflow-hidden w-full">
             <DayPicker
               mode="single"
               selected={date}
@@ -113,9 +114,16 @@ export function BookingForm() {
                 setTime(""); // Reset time if date changes
               }}
               disabled={{ before: new Date() }}
-              className="!w-full max-w-[320px] mx-auto"
+              className="!w-full max-w-[300px] mx-auto"
               classNames={{
-                day: "h-10 w-10 text-base rounded-full hover:bg-pink-100 focus:bg-pink-100",
+                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                month: "space-y-4 w-full",
+                table: "w-full border-collapse space-y-1",
+                head_row: "flex w-full",
+                head_cell: "text-neutral-500 rounded-md w-9 font-normal text-[0.8rem] flex-1",
+                row: "flex w-full mt-2",
+                cell: "text-center text-sm p-0 relative focus-within:relative focus-within:z-20 flex-1",
+                day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 mx-auto rounded-full hover:bg-pink-100",
                 selected: "bg-pink-500 text-white hover:bg-pink-600 focus:bg-pink-600",
               }}
             />
@@ -138,7 +146,7 @@ export function BookingForm() {
                   className="w-full px-4 py-4 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-pink-400 text-base bg-white appearance-none cursor-pointer"
                   required
                 />
-                {/* Optional: Show a formatted preview of their chosen time */}
+                {/* Show a formatted preview of their chosen time */}
                 {time && (
                   <p className="text-xs text-pink-600 font-medium mt-2">
                     Selected: {formatTimeDisplay(time)}
