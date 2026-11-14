@@ -5,16 +5,17 @@ import { useState, useTransition } from "react";
 import { format } from "date-fns";
 import { Clock, Upload, CheckCircle2, ChevronLeft, Loader2, PartyPopper } from "lucide-react";
 import Link from "next/link";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
 import { submitBooking } from "@/app/(public)/book/actions";
-import { Calendar } from "./Calendar";
 
 export function BookingForm() {
   const [isPending, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // These states are now completely outside the form
-  const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined);
+  // Store date as a Date object again
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState<string>("");
   const [inspoFile, setInspoFile] = useState<File | null>(null);
   
@@ -23,18 +24,17 @@ export function BookingForm() {
   async function handleSubmit(formData: FormData) {
     setError(null);
     
-    const data = new FormData();
-    formData.forEach((value, key) => data.append(key, value));
-    
-    // Append the state variables manually just in case
-    if (selectedDate) data.append("date", selectedDate);
-    if (time) data.append("time", time);
-    if (inspoFile) data.append("inspoFile", inspoFile);
-
-    if (!selectedDate || !time) {
+    if (!date || !time) {
       setError("Please select both a date and a time.");
       return;
     }
+    
+    const data = new FormData();
+    formData.forEach((value, key) => data.append(key, value));
+    
+    data.append("date", format(date, "yyyy-MM-dd"));
+    data.append("time", time);
+    if (inspoFile) data.append("inspoFile", inspoFile);
 
     startTransition(async () => {
       const result = await submitBooking(data);
@@ -97,19 +97,29 @@ export function BookingForm() {
             <h2 className="font-medium text-neutral-900">Select Date & Time</h2>
           </div>
 
-          <Calendar 
-            selectedDateString={selectedDate} 
-            onSelectDate={(newDateStr) => {
-              setSelectedDate(newDateStr);
-              setTime(""); // Reset time when date changes
-            }} 
-          />
+          {/* Beautiful DayPicker Calendar */}
+          <div className="flex justify-center bg-neutral-50 rounded-2xl p-4 border border-neutral-100 overflow-hidden">
+            <DayPicker
+              mode="single"
+              selected={date}
+              onSelect={(newDate) => {
+                setDate(newDate);
+                setTime(""); // Reset time if date changes
+              }}
+              disabled={{ before: new Date() }}
+              className="!w-full max-w-[320px] mx-auto"
+              classNames={{
+                day: "h-10 w-10 text-base rounded-full hover:bg-pink-100 focus:bg-pink-100",
+                selected: "bg-pink-500 text-white hover:bg-pink-600 focus:bg-pink-600",
+              }}
+            />
+          </div>
 
           {/* Time Slots */}
-          {selectedDate && (
+          {date && (
             <div className="mt-4 relative z-10 animate-in fade-in slide-in-from-top-2">
               <p className="text-sm font-medium text-neutral-700 mb-3 flex items-center gap-2">
-                <Clock className="w-4 h-4" /> Available times for {format(new Date(selectedDate), "MMM d, yyyy")}
+                <Clock className="w-4 h-4" /> Available times for {format(date, "MMM d, yyyy")}
               </p>
               <div className="grid grid-cols-3 gap-2">
                 {availableTimes.map((t) => (
