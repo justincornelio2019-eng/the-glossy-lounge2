@@ -1,8 +1,9 @@
-// src/middleware.ts
+// src/proxy.ts
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+// THE FIX: The function MUST be named "proxy"
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -26,7 +27,7 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session — DO NOT remove this line.
+  // Refresh session
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -55,13 +56,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico, sitemap.xml, robots.txt (public files)
-     * - public images
-     */
     "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|images).*)",
   ],
 };
