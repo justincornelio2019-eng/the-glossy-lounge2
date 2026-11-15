@@ -10,11 +10,8 @@ export async function updateBookingStatus(
 ) {
   const supabase = await createClient();
 
-  // Verify the user is authenticated (middleware already does this, but double-checking is good practice)
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  // SECURITY CHECK
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return { error: "Unauthorized" };
   }
@@ -28,7 +25,6 @@ export async function updateBookingStatus(
     return { error: error.message };
   }
 
-  // Tell Next.js to refresh the dashboard data instantly
   revalidatePath("/admin/dashboard");
   return { success: true };
 }

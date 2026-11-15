@@ -1,6 +1,7 @@
 // src/app/admin/(protected)/gallery/actions.ts
 "use server";
 
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { v2 as cloudinary } from "cloudinary";
 import { revalidatePath } from "next/cache";
@@ -13,8 +14,18 @@ cloudinary.config({
 
 type CloudinaryResponse = { secure_url: string; public_id: string };
 
+// Helper function to verify authentication
+async function requireAuth() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+  return user;
+}
+
 export async function uploadGalleryImage(formData: FormData) {
   try {
+    await requireAuth(); // SECURITY CHECK
+
     const file = formData.get("file") as File;
     const caption = formData.get("caption") as string;
 
@@ -22,7 +33,16 @@ export async function uploadGalleryImage(formData: FormData) {
       return { success: false, error: "No file provided." };
     }
 
-    // 1. Upload to Cloudinary
+    // Security: Verify it's actually an image
+    if (!file.type.startsWith("image/")) {
+      return { success: false, error: "File must be an image." };
+    }
+
+    // Security: Limit file size to 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      return { success: false, error: "File size must be less than 5MB." };
+    }
+
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
@@ -36,7 +56,6 @@ export async function uploadGalleryImage(formData: FormData) {
       ).end(buffer);
     });
 
-    // 2. Save to Supabase using Admin Client
     const supabase = createAdminClient();
     
     const { error } = await supabase.from("gallery_images").insert({
@@ -64,12 +83,12 @@ export async function uploadGalleryImage(formData: FormData) {
 
 export async function deleteGalleryImage(id: string, publicId: string) {
   try {
+    await requireAuth(); // SECURITY CHECK
+
     const supabase = createAdminClient();
 
-    // 1. Delete from Cloudinary
     await cloudinary.uploader.destroy(publicId);
 
-    // 2. Delete from Supabase
     const { error } = await supabase
       .from("gallery_images")
       .delete()
