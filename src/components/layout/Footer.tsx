@@ -59,7 +59,7 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/gallery" className="hover:text-pink-600 hover:underline underline-offset-4 transition-all">
-                  View Portfolio
+                  View Gallery
                 </Link>
               </li>
               <li>
@@ -98,10 +98,18 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-neutral-100 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-neutral-400">
-            © {new Date().getFullYear()} The Glossy Lounge. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4 text-xs text-neutral-400">
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+            <p className="text-xs text-neutral-400">
+              © {new Date().getFullYear()} The Glossy Lounge. All rights reserved.
+            </p>
+            <span className="hidden md:inline text-neutral-300 text-xs">|</span>
+            <div className="flex gap-4 text-xs text-neutral-400">
+              <Link href="/privacy" className="hover:text-pink-500 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-pink-500 transition-colors">Terms of Service</Link>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4 text-xs text-neutral-400 mt-2 md:mt-0">
             <Link href="/admin/login" className="hover:text-pink-500 transition-colors font-medium">
               Admin Portal
             </Link>

@@ -46,7 +46,7 @@ export default async function HomePage() {
             href="/gallery" 
             className="w-full sm:w-auto bg-white border border-neutral-200 hover:border-neutral-300 text-neutral-700 font-medium px-8 py-4 rounded-full text-lg transition-colors flex items-center justify-center gap-2"
           >
-            View Portfolio <ChevronRight className="w-5 h-5" />
+            View Gallery <ChevronRight className="w-5 h-5" />
           </Link>
         </div>
       </section>
