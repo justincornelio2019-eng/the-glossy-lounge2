@@ -237,7 +237,7 @@ export function BookingForm({
                   type="tel" 
                   name="phone" 
                   onChange={() => setFieldErrors(prev => ({ ...prev, phone: "" }))}
-                  placeholder="0912 345 6789" 
+                  placeholder="0956 556 4420" 
                   className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-500 focus:border-transparent text-base transition-all ${fieldErrors.phone ? 'border-red-300 bg-red-50' : 'border-neutral-200'}`} 
                 />
                 {fieldErrors.phone && <p className="text-xs text-red-500 font-medium">{fieldErrors.phone}</p>}
@@ -303,7 +303,7 @@ export function BookingForm({
                 To secure your slot, please send a <strong>₱{settings?.deposit_amount || 200} deposit</strong> via GCash to:
               </p>
               <div className="bg-white p-4 rounded-xl border border-pink-100 shadow-sm">
-                <p className="font-bold text-lg text-pink-600 tracking-wide">{settings?.gcash_number || "0912 345 6789"}</p>
+                <p className="font-bold text-lg text-pink-600 tracking-wide">{settings?.gcash_number || "0956 556 4420"}</p>
                 <p className="text-xs text-neutral-500 mt-1">Account Name: {settings?.gcash_name || "Glossy Lounge"}</p>
               </div>
             </div>

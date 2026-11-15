@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { Resend } from "resend";
 import { adminBookingEmail } from "@/lib/email/templates";
 import { z } from "zod";
+import { headers } from "next/headers";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -17,6 +18,13 @@ cloudinary.config({
 
 // Configure Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// --- RATE LIMITING STORAGE ---
+// In a real enterprise app, this would be in Redis or a database.
+// For a small salon, an in-memory map is perfect. It resets when the server restarts.
+const rateLimitMap = new Map<string, number[]>();
+const RATE_LIMIT_WINDOW = 2 * 60 * 1000; // 2 minutes
+const MAX_REQUESTS = 3; // Allow max 3 bookings per 2 minutes per IP
 
 // 1. Define the strict validation schema with Zod
 const BookingSchema = z.object({
@@ -37,6 +45,23 @@ type CloudinaryResponse = { secure_url: string };
 
 export async function submitBooking(formData: FormData) {
   try {
+    // --- SECURITY CHECK 1: RATE LIMITING ---
+    const headersList = await headers();
+    const ip = headersList.get("x-forwarded-for") || "unknown-ip";
+    const now = Date.now();
+    
+    const requestTimes = rateLimitMap.get(ip) || [];
+    // Filter out requests older than the 2-minute window
+    const recentRequests = requestTimes.filter((t) => now - t < RATE_LIMIT_WINDOW);
+    
+    if (recentRequests.length >= MAX_REQUESTS) {
+      return { success: false, error: "Too many booking attempts. Please try again in a few minutes." };
+    }
+    
+    // Log this request
+    recentRequests.push(now);
+    rateLimitMap.set(ip, recentRequests);
+
     // Extract raw data
     const rawData = {
       date: formData.get("date") as string,
@@ -50,11 +75,10 @@ export async function submitBooking(formData: FormData) {
 
     const inspoFile = formData.get("inspoFile") as File | null;
 
-    // 2. Validate with Zod
+    // --- SECURITY CHECK 2: ZOD VALIDATION ---
     const validatedData = BookingSchema.safeParse(rawData);
 
     if (!validatedData.success) {
-      // Return the first validation error to the user
       const firstError = validatedData.error.issues[0].message;
       return { success: false, error: firstError };
     }
@@ -63,7 +87,7 @@ export async function submitBooking(formData: FormData) {
 
     let inspoImageUrl = null;
 
-    // 3. Secure File Upload
+    // --- SECURITY CHECK 3: FILE UPLOAD VALIDATION ---
     if (inspoFile && inspoFile.size > 0) {
       // Check if it's actually an image
       if (!inspoFile.type.startsWith("image/")) {
@@ -90,7 +114,7 @@ export async function submitBooking(formData: FormData) {
       inspoImageUrl = uploadResponse.secure_url;
     }
 
-    // 4. Save to Supabase
+    // Save to Supabase
     const supabase = createAdminClient();
     
     const { error } = await supabase.from("bookings").insert({
@@ -111,7 +135,7 @@ export async function submitBooking(formData: FormData) {
       return { success: false, error: "Failed to save booking. Please try again." };
     }
 
-    // 5. Send Email Notification to Admin
+    // Send Email Notification to Admin
     try {
       await resend.emails.send({
         from: process.env.FROM_EMAIL || "onboarding@resend.dev", 

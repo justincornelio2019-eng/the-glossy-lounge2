@@ -59,7 +59,7 @@ export function SettingsForm({ initialData }: { initialData: SettingsData }) {
               name="gcash_number" 
               defaultValue={initialData.gcash_number}
               required 
-              placeholder="0912 345 6789" 
+              placeholder="0956 556 4420" 
               className="w-full px-4 py-2 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-pink-400" 
             />
           </div>

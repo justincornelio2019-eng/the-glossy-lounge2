@@ -29,7 +29,7 @@ export default function ContactPage() {
               </div>
               <div className="min-w-0">
                 <p className="font-medium text-neutral-900">Call or Text</p>
-                <p className="text-sm text-neutral-500 truncate">0912 345 6789</p>
+                <p className="text-sm text-neutral-500 truncate">0956 556 4420</p>
               </div>
               <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500 shrink-0" />
             </a>
