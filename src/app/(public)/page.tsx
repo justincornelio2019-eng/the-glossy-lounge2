@@ -1,6 +1,6 @@
 ﻿// src/app/(public)/page.tsx
 import Link from "next/link";
-import { MapPin, Clock, Bike, ChevronRight, Star } from "lucide-react";
+import { MapPin, Clock, Bike, ChevronRight, Star, Sparkles } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { createClient } from "@/lib/supabase/server";
 
@@ -18,8 +18,8 @@ export default async function HomePage() {
     <div className="min-h-screen">
       <Navbar />
 
-      {/* HERO SECTION */}
-      <section className="px-4 pt-12 pb-12 md:pt-24 md:pb-24 max-w-5xl mx-auto text-center">
+      {/* HERO SECTION - Tightened padding on mobile */}
+      <section className="px-4 pt-10 pb-10 md:pt-24 md:pb-24 max-w-5xl mx-auto text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-100 text-pink-700 text-xs font-semibold mb-6">
           <Star className="w-3 h-3 fill-pink-700" />
           <span>Sampaloc, Manila</span>
@@ -52,7 +52,7 @@ export default async function HomePage() {
       </section>
 
       {/* MINI GALLERY TEASER */}
-      <section className="py-10 bg-white overflow-hidden border-y border-neutral-100">
+      <section className="py-8 bg-white overflow-hidden border-y border-neutral-100">
         <div className="max-w-5xl mx-auto px-4 mb-5 flex items-center justify-between">
           <h2 className="font-serif text-2xl font-bold text-neutral-900">Recent Works</h2>
           <Link href="/gallery" className="text-sm font-medium text-pink-600 hover:text-pink-700">
@@ -60,7 +60,6 @@ export default async function HomePage() {
           </Link>
         </div>
         
-        {/* Horizontal scroll container */}
         <div className="flex gap-4 overflow-x-auto px-4 pb-4 snap-x snap-mandatory hide-scrollbar max-w-5xl mx-auto">
           {recentImages && recentImages.length > 0 ? (
             recentImages.map((img) => (
@@ -90,14 +89,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* LOCATION & INFO */}
-      <section className="px-4 py-12 md:py-16 max-w-5xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-10 items-start">
+      {/* LOCATION & INFO - Tightened */}
+      <section className="px-4 py-10 md:py-16 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 items-start">
           {/* Text Details */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             <h2 className="font-serif text-3xl font-bold text-neutral-900">Visit the Lounge</h2>
             
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div className="flex items-start gap-4">
                 <div className="p-2.5 bg-pink-50 rounded-xl shrink-0">
                   <MapPin className="w-5 h-5 text-pink-500" />
@@ -143,6 +142,28 @@ export default async function HomePage() {
               className="absolute inset-0"
             />
           </div>
+        </div>
+      </section>
+
+      {/* BEAUTIFUL NEW CTA SECTION - Replaces the old black box */}
+      <section className="px-4 pb-20 max-w-3xl mx-auto">
+        <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-3xl p-8 md:p-12 text-center border border-pink-200 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mt-8 -mr-8 text-pink-200 opacity-50">
+            <Sparkles className="w-32 h-32" />
+          </div>
+          
+          <h2 className="font-serif text-2xl md:text-3xl font-bold text-neutral-900 mb-3 relative z-10">
+            Ready for your glow up?
+          </h2>
+          <p className="text-neutral-600 mb-6 relative z-10 text-sm md:text-base">
+            Secure your slot online and skip the waiting list. We can't wait to see you.
+          </p>
+          <Link 
+            href="/book" 
+            className="inline-flex items-center justify-center w-full sm:w-auto bg-neutral-900 hover:bg-neutral-800 text-white font-bold px-8 py-4 rounded-xl transition-all relative z-10 shadow-lg"
+          >
+            Book an Appointment
+          </Link>
         </div>
       </section>
 
