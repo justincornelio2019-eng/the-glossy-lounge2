@@ -5,8 +5,8 @@ import { InstagramIcon, FacebookIcon } from "@/components/icons/SocialIcons";
 
 export function Footer() {
   return (
-    <footer className="bg-white border-t border-neutral-200 mt-auto pb-28 md:pb-0">
-      <div className="max-w-5xl mx-auto px-4 py-12">
+    <footer className="bg-white border-t border-neutral-200 pb-28 md:pb-8">
+      <div className="max-w-5xl mx-auto px-4 pt-12">
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           
