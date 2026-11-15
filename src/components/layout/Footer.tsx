@@ -23,10 +23,24 @@ export function Footer() {
               Where your nails get their glow. Premium nail art, gel extensions, and self-care in the heart of Sampaloc, Manila.
             </p>
             <div className="flex items-center gap-4 pt-2">
-              <a href="https://instagram.com" target="_blank" rel="noreferrer" className="p-2.5 bg-white border border-neutral-200 rounded-full text-neutral-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50 transition-all shadow-sm">
+              {/* Updated Instagram Link */}
+              <a 
+                href="https://www.instagram.com/theglossylounge/" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="p-2.5 bg-white border border-neutral-200 rounded-full text-neutral-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50 transition-all shadow-sm"
+                aria-label="Instagram"
+              >
                 <Camera className="w-4 h-4" />
               </a>
-              <a href="https://facebook.com" target="_blank" rel="noreferrer" className="p-2.5 bg-white border border-neutral-200 rounded-full text-neutral-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50 transition-all shadow-sm">
+              {/* Updated Facebook Link */}
+              <a 
+                href="https://www.facebook.com/profile.php?id=61569994558912" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="p-2.5 bg-white border border-neutral-200 rounded-full text-neutral-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50 transition-all shadow-sm"
+                aria-label="Facebook"
+              >
                 <ThumbsUp className="w-4 h-4" />
               </a>
             </div>

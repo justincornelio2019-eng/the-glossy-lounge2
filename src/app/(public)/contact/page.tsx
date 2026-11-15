@@ -8,7 +8,6 @@ export default function ContactPage() {
     <div className="min-h-screen bg-neutral-50 pb-24 md:pb-12 overflow-x-hidden">
       <Navbar />
 
-      {/* Added pt-8 for spacing below the sticky Navbar */}
       <div className="max-w-3xl mx-auto px-4 pt-8 pb-12 w-full">
         {/* Header */}
         <div className="text-center mb-12">
@@ -46,7 +45,13 @@ export default function ContactPage() {
               <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500 shrink-0" />
             </a>
 
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-2xl border border-neutral-100 hover:border-pink-300 hover:bg-pink-50 transition-colors group">
+            {/* Updated Instagram Link */}
+            <a 
+              href="https://www.instagram.com/theglossylounge/" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="flex items-center gap-4 p-4 rounded-2xl border border-neutral-100 hover:border-pink-300 hover:bg-pink-50 transition-colors group"
+            >
               <div className="p-3 bg-pink-100 text-pink-600 rounded-full group-hover:bg-pink-200 transition-colors shrink-0">
                 <Camera className="w-5 h-5" />
               </div>
@@ -95,7 +100,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Map Container - Fixed for Mobile */}
+          {/* Map Container */}
           <div className="w-full h-[300px] rounded-3xl overflow-hidden border border-neutral-200 relative shadow-sm bg-neutral-200">
             <iframe 
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.1772029836564!2d120.99595407474374!3d14.612326186263782!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b70000000000%3A0x0!2s416%20Kundiman%20St%2C%20Sampaloc%2C%20Manila!5e0!3m2!1sen!2sph!4v1700000000000!5m2!1sen!2sph" 
