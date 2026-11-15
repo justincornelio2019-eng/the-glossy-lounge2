@@ -2,8 +2,18 @@
 import Link from "next/link";
 import { MapPin, Clock, Bike, ChevronRight, Star } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
+import { createClient } from "@/lib/supabase/server";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient();
+  
+  // Fetch the 10 most recent gallery images
+  const { data: recentImages } = await supabase
+    .from("gallery_images")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(10);
+
   return (
     <div className="min-h-screen pb-20 md:pb-0">
       <Navbar />
@@ -52,16 +62,32 @@ export default function HomePage() {
         
         {/* Horizontal scroll container */}
         <div className="flex gap-4 overflow-x-auto px-4 pb-4 snap-x snap-mandatory hide-scrollbar max-w-5xl mx-auto">
-          {/* Placeholder images - we will fetch these from Supabase later */}
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div 
-              key={i} 
-              className="snap-center shrink-0 w-64 h-80 bg-neutral-100 rounded-2xl relative overflow-hidden flex items-center justify-center text-neutral-400 text-sm"
-            >
-              {/* Replace with actual <Image> later */}
-              Nail Art Photo {i}
+          {recentImages && recentImages.length > 0 ? (
+            recentImages.map((img) => (
+              <div 
+                key={img.id} 
+                className="snap-center shrink-0 w-64 h-80 bg-neutral-100 rounded-2xl relative overflow-hidden group"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src={img.image_url} 
+                  alt={img.caption || "Recent nail work"} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                {img.caption && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                    <p className="text-white text-sm font-medium">{img.caption}</p>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            // Fallback if no images are uploaded yet
+            <div className="w-full py-12 text-center text-neutral-400">
+              Photos coming soon...
             </div>
-          ))}
+          )}
         </div>
       </section>
 
@@ -107,7 +133,6 @@ export default function HomePage() {
 
           {/* Map Embed */}
           <div className="bg-neutral-100 rounded-2xl h-[300px] md:h-[400px] overflow-hidden border border-neutral-200 relative">
-            {/* We will replace the src with the exact Google Maps Embed link shortly */}
             <iframe 
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.1772029836564!2d120.99595407474374!3d14.612326186263782!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b70000000000%3A0x0!2s416%20Kundiman%20St%2C%20Sampaloc%2C%20Manila!5e0!3m2!1sen!2sph!4v1700000000000!5m2!1sen!2sph" 
               width="100%" 
