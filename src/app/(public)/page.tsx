@@ -141,7 +141,7 @@ export default async function HomePage() {
               allowFullScreen 
               loading="lazy" 
               referrerPolicy="no-referrer-when-downgrade"
-              className="absolute inset-0 grayscale hover:grayscale-0 transition-all duration-500"
+              className="absolute inset-0"
             />
           </div>
         </div>
