@@ -5,7 +5,16 @@ import { useState, useTransition } from "react";
 import { updateSettings } from "@/app/admin/(protected)/settings/actions";
 import { Loader2, Save } from "lucide-react";
 
-export function SettingsForm({ initialData }: { initialData: any }) {
+// Define the proper type for settings
+interface SettingsData {
+  gcash_number: string;
+  gcash_name: string;
+  deposit_amount: number;
+  open_time: string;
+  close_time: string;
+}
+
+export function SettingsForm({ initialData }: { initialData: SettingsData }) {
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);

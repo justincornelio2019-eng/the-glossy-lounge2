@@ -3,14 +3,20 @@
 
 import { useState } from "react";
 import { updateBookingStatus, markBookingComplete } from "@/app/admin/(protected)/dashboard/actions";
-import { Loader2, CheckCircle2, XCircle, CalendarClock, RotateCcw } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, CalendarClock } from "lucide-react";
 import { RescheduleModal } from "./RescheduleModal";
+import { Booking } from "@/types"; // Import the Booking type
 
-export function BookingActions({ booking }: { booking: any }) {
+export function BookingActions({ booking }: { booking: Booking }) {
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [showReschedule, setShowReschedule] = useState(false);
 
   async function handleStatusChange(status: "confirmed" | "declined") {
+    const actionText = status === "confirmed" ? "confirm" : "decline";
+    if (!window.confirm(`Are you sure you want to ${actionText} this booking for ${booking.client_name}?`)) {
+      return;
+    }
+
     setIsUpdating(status);
     const result = await updateBookingStatus(booking.id, status);
     if (result.error) alert(result.error);
@@ -18,6 +24,10 @@ export function BookingActions({ booking }: { booking: any }) {
   }
 
   async function handleComplete() {
+    if (!window.confirm(`Mark this appointment as completed? This will move it to history.`)) {
+      return;
+    }
+
     setIsUpdating("completed");
     const result = await markBookingComplete(booking.id);
     if (result.error) alert(result.error);

@@ -9,7 +9,8 @@ export function DeleteImageButton({ id, publicId }: { id: string; publicId: stri
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
-    if (!confirm("Are you sure you want to delete this photo? This cannot be undone.")) {
+    // EXPLICIT WINDOW.CONFIRM FOR MOBILE
+    if (!window.confirm("Are you sure you want to delete this photo from your gallery? This action cannot be undone.")) {
       return;
     }
 
@@ -17,7 +18,7 @@ export function DeleteImageButton({ id, publicId }: { id: string; publicId: stri
     const result = await deleteGalleryImage(id, publicId);
     
     if (result.error) {
-      alert(result.error);
+      alert("Error: " + result.error);
       setIsDeleting(false);
     }
   }
@@ -27,6 +28,7 @@ export function DeleteImageButton({ id, publicId }: { id: string; publicId: stri
       onClick={handleDelete}
       disabled={isDeleting}
       className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50 shadow-md"
+      title="Delete Image"
     >
       {isDeleting ? (
         <Loader2 className="w-4 h-4 animate-spin" />

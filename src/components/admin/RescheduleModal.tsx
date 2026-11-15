@@ -2,11 +2,11 @@
 "use client";
 
 import { useState } from "react";
-import { format } from "date-fns";
 import { X, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { rescheduleBooking } from "@/app/admin/(protected)/dashboard/actions";
+import { Booking } from "@/types";
 
-export function RescheduleModal({ booking, onClose }: { booking: any, onClose: () => void }) {
+export function RescheduleModal({ booking, onClose }: { booking: Booking, onClose: () => void }) {
   const [date, setDate] = useState(booking.appointment_date.split("T")[0]);
   const [time, setTime] = useState(booking.appointment_time.substring(0, 5));
   const [loading, setLoading] = useState(false);
