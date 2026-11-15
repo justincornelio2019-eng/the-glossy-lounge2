@@ -1,14 +1,11 @@
-// src/app/loading.tsx
+// src/app/(public)/loading.tsx
 import { Sparkles } from "lucide-react";
 
-export default function Loading() {
+export default function PublicLoading() {
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-neutral-50/80 backdrop-blur-sm">
       <div className="relative flex items-center justify-center">
-        {/* Outer spinning ring */}
         <div className="w-16 h-16 border-4 border-pink-100 border-t-pink-500 rounded-full animate-spin"></div>
-        
-        {/* Inner Logo */}
         <div className="absolute inset-0 flex items-center justify-center">
           <Sparkles className="w-6 h-6 text-pink-500 animate-pulse" />
         </div>
