@@ -6,18 +6,28 @@ import { createClient } from "@/lib/supabase/server";
 export default async function BookPage() {
   const supabase = await createClient();
   
-  // Fetch only confirmed or pending bookings to block those slots
+  // 1. Fetch existing bookings to block overlapping times
   const { data: bookings } = await supabase
     .from("bookings")
     .select("appointment_date, appointment_time")
     .in("status", ["pending", "confirmed"]);
 
+  // 2. Fetch the shop settings (GCash, Deposit, Hours)
+  const { data: settings } = await supabase
+    .from("settings")
+    .select("*")
+    .eq("id", 1)
+    .single();
+
   return (
     <div className="min-h-screen bg-neutral-50">
       <Navbar />
       <div className="pt-8 px-4">
-        {/* Pass the existing bookings to the form */}
-        <BookingForm existingBookings={bookings || []} />
+        {/* Pass both props to the form */}
+        <BookingForm 
+          existingBookings={bookings || []} 
+          settings={settings} 
+        />
       </div>
     </div>
   );

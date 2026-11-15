@@ -14,7 +14,19 @@ interface Booking {
   appointment_time: string;
 }
 
-export function BookingForm({ existingBookings }: { existingBookings: Booking[] }) {
+interface Settings {
+  gcash_number: string;
+  gcash_name: string;
+  deposit_amount: number;
+}
+
+export function BookingForm({ 
+  existingBookings, 
+  settings 
+}: { 
+  existingBookings: Booking[], 
+  settings: Settings 
+}) {
   const [isPending, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,18 +43,14 @@ export function BookingForm({ existingBookings }: { existingBookings: Booking[] 
     { value: "19:00", label: "7:00 PM" },
   ];
 
-  // Format the selected date to YYYY-MM-DD so we can compare it accurately
   const selectedDateString = date ? format(date, "yyyy-MM-dd") : "";
 
-  // Find all booked times for the currently selected date
   const bookedTimesForSelectedDate = existingBookings
     .filter((b) => {
-      // Handle Supabase returning "2024-05-20" or "2024-05-20T00:00:00+00:00"
       const bDate = b.appointment_date.split("T")[0];
       return bDate === selectedDateString;
     })
     .map((b) => {
-      // Handle Supabase returning "10:00:00" or "10:00"
       return b.appointment_time.substring(0, 5); 
     });
 
@@ -244,7 +252,7 @@ export function BookingForm({ existingBookings }: { existingBookings: Booking[] 
 
           <hr className="border-neutral-100" />
 
-          {/* STEP 4: GCash Deposit */}
+          {/* STEP 4: GCash Deposit (NOW DYNAMIC) */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-pink-100 text-pink-600 text-xs font-bold">4</span>
@@ -252,10 +260,12 @@ export function BookingForm({ existingBookings }: { existingBookings: Booking[] 
             </div>
 
             <div className="bg-blue-50 text-blue-800 p-4 rounded-2xl text-sm border border-blue-100 space-y-2">
-              <p>To secure your slot, please send a <strong>₱200 deposit</strong> via GCash to:</p>
+              <p>
+                To secure your slot, please send a <strong>₱{settings?.deposit_amount || 200} deposit</strong> via GCash to:
+              </p>
               <div className="bg-white p-3 rounded-xl border border-blue-100">
-                <p className="font-bold text-base">0912 345 6789</p>
-                <p className="text-xs text-blue-600">Account Name: Glossy Lounge</p>
+                <p className="font-bold text-base">{settings?.gcash_number || "0912 345 6789"}</p>
+                <p className="text-xs text-blue-600">Account Name: {settings?.gcash_name || "Glossy Lounge"}</p>
               </div>
             </div>
 
