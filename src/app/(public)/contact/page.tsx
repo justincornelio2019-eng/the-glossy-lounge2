@@ -5,14 +5,15 @@ import Link from "next/link";
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
+    <div className="min-h-screen bg-neutral-50 pb-24 md:pb-12 overflow-x-hidden">
       <Navbar />
 
-      <div className="max-w-3xl mx-auto px-4 py-12">
+      {/* Added pt-8 for spacing below the sticky Navbar */}
+      <div className="max-w-3xl mx-auto px-4 pt-8 pb-12 w-full">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="font-serif text-4xl font-bold text-neutral-900 mb-4">Visit Us</h1>
-          <p className="text-neutral-600 text-lg">
+          <h1 className="font-serif text-3xl md:text-4xl font-bold text-neutral-900 mb-4">Visit Us</h1>
+          <p className="text-neutral-600 text-base md:text-lg">
             We can't wait to see you. Here's everything you need to know to find us.
           </p>
         </div>
@@ -24,37 +25,36 @@ export default function ContactPage() {
             <h2 className="font-serif text-xl font-bold text-neutral-900 mb-4">Get in Touch</h2>
             
             <a href="tel:+639123456789" className="flex items-center gap-4 p-4 rounded-2xl border border-neutral-100 hover:border-pink-300 hover:bg-pink-50 transition-colors group">
-              <div className="p-3 bg-pink-100 text-pink-600 rounded-full group-hover:bg-pink-200 transition-colors">
+              <div className="p-3 bg-pink-100 text-pink-600 rounded-full group-hover:bg-pink-200 transition-colors shrink-0">
                 <Phone className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="font-medium text-neutral-900">Call or Text</p>
-                <p className="text-sm text-neutral-500">0912 345 6789</p>
+                <p className="text-sm text-neutral-500 truncate">0912 345 6789</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500" />
+              <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500 shrink-0" />
             </a>
 
             <a href="mailto:theglossylounge26@gmail.com" className="flex items-center gap-4 p-4 rounded-2xl border border-neutral-100 hover:border-pink-300 hover:bg-pink-50 transition-colors group">
-              <div className="p-3 bg-pink-100 text-pink-600 rounded-full group-hover:bg-pink-200 transition-colors">
+              <div className="p-3 bg-pink-100 text-pink-600 rounded-full group-hover:bg-pink-200 transition-colors shrink-0">
                 <Mail className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="font-medium text-neutral-900">Email Us</p>
-                <p className="text-sm text-neutral-500">theglossylounge26@gmail.com</p>
+                <p className="text-sm text-neutral-500 truncate">theglossylounge26@gmail.com</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500" />
+              <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500 shrink-0" />
             </a>
 
             <a href="https://instagram.com" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-2xl border border-neutral-100 hover:border-pink-300 hover:bg-pink-50 transition-colors group">
-              <div className="p-3 bg-pink-100 text-pink-600 rounded-full group-hover:bg-pink-200 transition-colors">
-                {/* Replaced Instagram with Camera */}
+              <div className="p-3 bg-pink-100 text-pink-600 rounded-full group-hover:bg-pink-200 transition-colors shrink-0">
                 <Camera className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="font-medium text-neutral-900">Instagram</p>
-                <p className="text-sm text-neutral-500">@theglossylounge</p>
+                <p className="text-sm text-neutral-500 truncate">@theglossylounge</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500" />
+              <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500 shrink-0" />
             </a>
           </div>
 
@@ -95,8 +95,8 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Map */}
-          <div className="bg-neutral-100 rounded-3xl h-[300px] overflow-hidden border border-neutral-200 relative shadow-sm">
+          {/* Map Container - Fixed for Mobile */}
+          <div className="w-full h-[300px] rounded-3xl overflow-hidden border border-neutral-200 relative shadow-sm bg-neutral-200">
             <iframe 
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.1772029836564!2d120.99595407474374!3d14.612326186263782!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b70000000000%3A0x0!2s416%20Kundiman%20St%2C%20Sampaloc%2C%20Manila!5e0!3m2!1sen!2sph!4v1700000000000!5m2!1sen!2sph" 
               width="100%" 
@@ -105,7 +105,7 @@ export default function ContactPage() {
               allowFullScreen 
               loading="lazy" 
               referrerPolicy="no-referrer-when-downgrade"
-              className="absolute inset-0 grayscale hover:grayscale-0 transition-all duration-500"
+              className="absolute inset-0 w-full h-full"
             />
           </div>
 
