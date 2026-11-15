@@ -1,6 +1,6 @@
 ﻿// src/app/(public)/contact/page.tsx
 import { Navbar } from "@/components/layout/Navbar";
-import { MapPin, Clock, Bike, Phone, Mail, Instagram, ChevronRight } from "lucide-react";
+import { MapPin, Clock, Bike, Phone, Mail, Camera, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export default function ContactPage() {
@@ -47,7 +47,8 @@ export default function ContactPage() {
 
             <a href="https://instagram.com" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-2xl border border-neutral-100 hover:border-pink-300 hover:bg-pink-50 transition-colors group">
               <div className="p-3 bg-pink-100 text-pink-600 rounded-full group-hover:bg-pink-200 transition-colors">
-                <Instagram className="w-5 h-5" />
+                {/* Replaced Instagram with Camera */}
+                <Camera className="w-5 h-5" />
               </div>
               <div>
                 <p className="font-medium text-neutral-900">Instagram</p>
