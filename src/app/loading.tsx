@@ -1,4 +1,4 @@
-// src/app/(public)/loading.tsx
+// src/app/loading.tsx
 import { Sparkles } from "lucide-react";
 
 export default function Loading() {
