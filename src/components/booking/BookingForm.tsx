@@ -31,12 +31,20 @@ export function BookingForm({ existingBookings }: { existingBookings: Booking[] 
     { value: "19:00", label: "7:00 PM" },
   ];
 
+  // Format the selected date to YYYY-MM-DD so we can compare it accurately
+  const selectedDateString = date ? format(date, "yyyy-MM-dd") : "";
+
   // Find all booked times for the currently selected date
-  const bookedTimesForSelectedDate = date 
-    ? existingBookings
-        .filter(b => b.appointment_date === format(date, "yyyy-MM-dd"))
-        .map(b => b.appointment_time)
-    : [];
+  const bookedTimesForSelectedDate = existingBookings
+    .filter((b) => {
+      // Handle Supabase returning "2024-05-20" or "2024-05-20T00:00:00+00:00"
+      const bDate = b.appointment_date.split("T")[0];
+      return bDate === selectedDateString;
+    })
+    .map((b) => {
+      // Handle Supabase returning "10:00:00" or "10:00"
+      return b.appointment_time.substring(0, 5); 
+    });
 
   async function handleSubmit(formData: FormData) {
     setError(null);
