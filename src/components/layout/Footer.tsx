@@ -28,7 +28,7 @@ export function Footer() {
             {/* Social Icons */}
             <div className="flex items-center gap-3 pt-2">
               <Link 
-                href="https://instagram.com" 
+                href="https://the-glossy-lounge2.vercel.app/admin/gallery" 
                 target="_blank" 
                 rel="noreferrer" 
                 className="p-2.5 bg-neutral-100 hover:bg-pink-500 text-neutral-500 hover:text-white rounded-full transition-all duration-300"
@@ -37,7 +37,7 @@ export function Footer() {
                 <InstagramIcon className="w-5 h-5" />
               </Link>
               <Link 
-                href="https://facebook.com" 
+                href="https://www.facebook.com/profile.php?id=61569994558912" 
                 target="_blank" 
                 rel="noreferrer" 
                 className="p-2.5 bg-neutral-100 hover:bg-pink-500 text-neutral-500 hover:text-white rounded-full transition-all duration-300"

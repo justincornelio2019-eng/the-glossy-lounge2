@@ -97,7 +97,7 @@ export function BookingForm({
   // SUCCESS SCREEN
   if (isSuccess) {
     return (
-      <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-sm border border-neutral-200 p-8 text-center mt-12 mb-24 md:mb-12 animate-in zoom-in-95">
+      <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-sm border border-neutral-200 p-8 text-center mt-12 mb-8 md:mb-12 animate-in zoom-in-95">
         <div className="w-20 h-20 bg-pink-50 rounded-full flex items-center justify-center mx-auto mb-6">
           <PartyPopper className="w-10 h-10 text-pink-500" />
         </div>
@@ -117,7 +117,7 @@ export function BookingForm({
 
   // BOOKING FORM
   return (
-    <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-sm border border-neutral-200 overflow-hidden mb-24 md:mb-12">
+    <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-sm border border-neutral-200 overflow-hidden mb-8 md:mb-12">
       
       {/* Header */}
       <div className="bg-neutral-50 p-6 border-b border-neutral-200 flex items-center gap-4">
