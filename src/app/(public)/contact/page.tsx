@@ -62,7 +62,7 @@ export default function ContactPage() {
             </a>
 
             <a 
-              href="https://www.facebook.com/theglossylounge" 
+              href="https://www.facebook.com/profile.php?id=61569994558912" 
               target="_blank" 
               rel="noreferrer" 
               className="flex items-center gap-4 p-4 rounded-2xl border border-neutral-100 hover:border-pink-300 hover:bg-pink-50 transition-colors group"
