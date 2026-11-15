@@ -14,9 +14,12 @@ export function BookingForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Store date as a Date object again
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState<string>("");
   const [inspoFile, setInspoFile] = useState<File | null>(null);
+  
+  const availableTimes = ["10:00 AM", "11:30 AM", "01:00 PM", "02:30 PM", "04:00 PM", "05:30 PM", "07:00 PM"];
 
   async function handleSubmit(formData: FormData) {
     setError(null);
@@ -42,15 +45,6 @@ export function BookingForm() {
       }
     });
   }
-
-  // Format the time to look nice (e.g., "14:30" -> "2:30 PM")
-  const formatTimeDisplay = (timeString: string) => {
-    if (!timeString) return "";
-    const [hours, minutes] = timeString.split(":");
-    const d = new Date();
-    d.setHours(parseInt(hours), parseInt(minutes));
-    return format(d, "h:mm a");
-  };
 
   // SUCCESS SCREEN
   if (isSuccess) {
@@ -115,42 +109,33 @@ export function BookingForm() {
               disabled={{ before: new Date() }}
               className="!w-full max-w-[320px] mx-auto"
               classNames={{
-                months: "w-full",
-                month: "w-full",
-                // Using the v9 API class names to fix the layout
-                month_grid: "w-full border-collapse space-y-1",
-                weekdays: "flex w-full",
-                weekday: "text-neutral-500 rounded-md w-9 font-normal text-[0.8rem] flex-1 text-center",
-                week: "flex w-full mt-2",
-                day: "h-10 w-10 text-base rounded-full hover:bg-pink-100 focus:bg-pink-100 mx-auto",
+                day: "h-10 w-10 text-base rounded-full hover:bg-pink-100 focus:bg-pink-100",
                 selected: "bg-pink-500 text-white hover:bg-pink-600 focus:bg-pink-600",
               }}
             />
           </div>
 
-          {/* Native Time Picker */}
+          {/* Time Slots */}
           {date && (
             <div className="mt-4 relative z-10 animate-in fade-in slide-in-from-top-2">
-              <label className="text-sm font-medium text-neutral-700 mb-2 flex items-center gap-2">
-                <Clock className="w-4 h-4" /> Select a Time (10:00 AM - 9:00 PM)
-              </label>
-              
-              <div className="relative">
-                <input
-                  type="time"
-                  min="10:00"
-                  max="21:00"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="w-full px-4 py-4 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-pink-400 text-base bg-white appearance-none cursor-pointer"
-                  required
-                />
-                {/* Show a formatted preview of their chosen time */}
-                {time && (
-                  <p className="text-xs text-pink-600 font-medium mt-2">
-                    Selected: {formatTimeDisplay(time)}
-                  </p>
-                )}
+              <p className="text-sm font-medium text-neutral-700 mb-3 flex items-center gap-2">
+                <Clock className="w-4 h-4" /> Available times for {format(date, "MMM d, yyyy")}
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {availableTimes.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setTime(t)}
+                    className={`py-3 px-2 rounded-xl text-sm font-medium border transition-all select-none ${
+                      time === t 
+                        ? "bg-pink-500 text-white border-pink-500 shadow-md shadow-pink-500/20" 
+                        : "bg-white text-neutral-700 border-neutral-200 active:border-pink-300"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
               </div>
             </div>
           )}
