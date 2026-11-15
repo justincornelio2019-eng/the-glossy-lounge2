@@ -1,8 +1,8 @@
 ﻿// src/app/admin/(protected)/dashboard/page.tsx
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
-import { Calendar, Clock, Phone, Mail, Image as ImageIcon, CheckCircle2, XCircle } from "lucide-react";
-import Link from "next/link";
+import { Calendar, Clock, Phone, Mail, Image as ImageIcon } from "lucide-react";
+import { BookingActions } from "@/components/admin/BookingActions"; // Import the new component
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -122,16 +122,9 @@ export default async function DashboardPage() {
                       </div>
                     )}
 
-                    <div className="flex gap-2 w-full">
-                      <button className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1">
-                        <CheckCircle2 className="w-4 h-4" />
-                        Confirm
-                      </button>
-                      <button className="flex-1 bg-white border border-red-200 text-red-600 hover:bg-red-50 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1">
-                        <XCircle className="w-4 h-4" />
-                        Decline
-                      </button>
-                    </div>
+                    {/* NEW DYNAMIC BUTTONS */}
+                    <BookingActions bookingId={booking.id} />
+                    
                   </div>
 
                 </div>
