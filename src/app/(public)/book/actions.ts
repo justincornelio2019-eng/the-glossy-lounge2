@@ -1,10 +1,11 @@
 // src/app/(public)/book/actions.ts
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { v2 as cloudinary } from "cloudinary";
 import { revalidatePath } from "next/cache";
+import { Resend } from "resend";
+import { adminBookingEmail } from "@/lib/email/templates";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -13,7 +14,9 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Define the type for the Cloudinary response
+// Configure Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 type CloudinaryResponse = { secure_url: string };
 
 export async function submitBooking(formData: FormData) {
@@ -52,8 +55,6 @@ export async function submitBooking(formData: FormData) {
     }
 
     // 2. Save to Supabase
-    // We use the Admin Client here so it bypasses RLS (Row Level Security) 
-    // because public users are not logged in.
     const supabase = createAdminClient();
     
     const { error } = await supabase.from("bookings").insert({
@@ -66,7 +67,7 @@ export async function submitBooking(formData: FormData) {
       gcash_reference: gcashRef,
       inspo_image_url: inspoImageUrl,
       status: "pending",
-      deposit_amount: 200, // Hardcoded for now, we'll make this dynamic later
+      deposit_amount: 200,
     });
 
     if (error) {
@@ -74,9 +75,27 @@ export async function submitBooking(formData: FormData) {
       return { success: false, error: "Failed to save booking. Please try again." };
     }
 
-    // TODO: Trigger Resend Email here (next step)
+    // 3. Send Email Notification to Admin
+    try {
+      await resend.emails.send({
+        from: process.env.FROM_EMAIL || "onboarding@resend.dev", // You can only use onboarding@resend.dev until you verify your domain
+        to: process.env.ADMIN_EMAIL as string,
+        subject: `New Booking: ${name} on ${date}`,
+        html: adminBookingEmail({
+          client_name: name,
+          appointment_date: date,
+          appointment_time: time,
+          client_phone: phone,
+          client_email: email,
+          gcash_reference: gcashRef,
+        }),
+      });
+    } catch (emailError) {
+      console.error("Failed to send admin email:", emailError);
+      // We don't return an error here because the booking was still saved successfully
+    }
 
-    revalidatePath("/admin/dashboard"); // Refresh admin dashboard
+    revalidatePath("/admin/dashboard"); 
     return { success: true };
 
   } catch (error) {
