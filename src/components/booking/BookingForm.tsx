@@ -115,7 +115,14 @@ export function BookingForm() {
               disabled={{ before: new Date() }}
               className="!w-full max-w-[320px] mx-auto"
               classNames={{
-                day: "h-10 w-10 text-base rounded-full hover:bg-pink-100 focus:bg-pink-100",
+                months: "w-full",
+                month: "w-full",
+                // Using the v9 API class names to fix the layout
+                month_grid: "w-full border-collapse space-y-1",
+                weekdays: "flex w-full",
+                weekday: "text-neutral-500 rounded-md w-9 font-normal text-[0.8rem] flex-1 text-center",
+                week: "flex w-full mt-2",
+                day: "h-10 w-10 text-base rounded-full hover:bg-pink-100 focus:bg-pink-100 mx-auto",
                 selected: "bg-pink-500 text-white hover:bg-pink-600 focus:bg-pink-600",
               }}
             />
