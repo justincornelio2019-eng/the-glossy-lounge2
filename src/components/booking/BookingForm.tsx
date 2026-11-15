@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { Clock, Upload, CheckCircle2, ChevronLeft, Loader2, PartyPopper, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { DayPicker } from "react-day-picker";
@@ -23,6 +23,14 @@ export function BookingForm({ existingBookings }: { existingBookings: Booking[] 
   const [time, setTime] = useState<string>("");
   const [inspoFile, setInspoFile] = useState<File | null>(null);
 
+  // The 4 fixed 3-hour slots (10AM, 1PM, 4PM, 7PM)
+  const timeSlots = [
+    { value: "10:00", label: "10:00 AM" },
+    { value: "13:00", label: "1:00 PM" },
+    { value: "16:00", label: "4:00 PM" },
+    { value: "19:00", label: "7:00 PM" },
+  ];
+
   // Find all booked times for the currently selected date
   const bookedTimesForSelectedDate = date 
     ? existingBookings
@@ -38,9 +46,8 @@ export function BookingForm({ existingBookings }: { existingBookings: Booking[] 
       return;
     }
 
-    // Check for double booking before submitting
     if (bookedTimesForSelectedDate.includes(time)) {
-      setError("Sorry, this time slot is already booked. Please pick another time.");
+      setError("Sorry, this time slot has just been booked by someone else. Please pick another.");
       return;
     }
     
@@ -60,15 +67,6 @@ export function BookingForm({ existingBookings }: { existingBookings: Booking[] 
       }
     });
   }
-
-  // Format the time to look nice (e.g., "14:30" -> "2:30 PM")
-  const formatTimeDisplay = (timeString: string) => {
-    if (!timeString) return "";
-    const [hours, minutes] = timeString.split(":");
-    const d = new Date();
-    d.setHours(parseInt(hours), parseInt(minutes));
-    return format(d, "h:mm a");
-  };
 
   // SUCCESS SCREEN
   if (isSuccess) {
@@ -130,7 +128,7 @@ export function BookingForm({ existingBookings }: { existingBookings: Booking[] 
               onSelect={(newDate) => {
                 setDate(newDate);
                 setTime(""); // Reset time if date changes
-                setError(null); // Clear errors
+                setError(null);
               }}
               disabled={{ before: new Date() }}
               className="!w-full max-w-[320px] mx-auto"
@@ -141,50 +139,38 @@ export function BookingForm({ existingBookings }: { existingBookings: Booking[] 
             />
           </div>
 
-          {/* Native Time Picker */}
+          {/* Time Slots Grid */}
           {date && (
             <div className="mt-4 relative z-10 animate-in fade-in slide-in-from-top-2">
-              <label className="text-sm font-medium text-neutral-700 mb-2 flex items-center gap-2">
-                <Clock className="w-4 h-4" /> Select a Time (10:00 AM - 9:00 PM)
-              </label>
+              <p className="text-sm font-medium text-neutral-700 mb-3 flex items-center gap-2">
+                <Clock className="w-4 h-4" /> Available times for {format(date, "MMM d, yyyy")}
+              </p>
               
-              <div className="relative">
-                <input
-                  type="time"
-                  min="10:00"
-                  max="21:00"
-                  value={time}
-                  onChange={(e) => {
-                    setTime(e.target.value);
-                    setError(null);
-                  }}
-                  className={`w-full px-4 py-4 rounded-xl border focus:ring-2 focus:ring-pink-400 text-base bg-white appearance-none cursor-pointer ${
-                    bookedTimesForSelectedDate.includes(time) ? "border-red-300 bg-red-50" : "border-neutral-200"
-                  }`}
-                  required
-                />
-                {time && (
-                  <p className={`text-xs font-medium mt-2 ${bookedTimesForSelectedDate.includes(time) ? "text-red-600" : "text-pink-600"}`}>
-                    {bookedTimesForSelectedDate.includes(time) 
-                      ? "This time is already booked. Please pick another." 
-                      : `Selected: ${formatTimeDisplay(time)}`}
-                  </p>
-                )}
-              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {timeSlots.map((slot) => {
+                  const isBooked = bookedTimesForSelectedDate.includes(slot.value);
+                  const isSelected = time === slot.value;
 
-              {/* Show booked times for this date to help the user */}
-              {bookedTimesForSelectedDate.length > 0 && (
-                <div className="mt-3 p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-                  <p className="text-xs text-neutral-500 font-medium mb-1">Already Booked:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {bookedTimesForSelectedDate.map((bt, i) => (
-                      <span key={i} className="text-xs bg-white border border-neutral-200 text-neutral-600 px-2 py-1 rounded-md line-through">
-                        {formatTimeDisplay(bt)}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+                  return (
+                    <button
+                      key={slot.value}
+                      type="button"
+                      disabled={isBooked}
+                      onClick={() => setTime(slot.value)}
+                      className={`py-4 px-2 rounded-xl text-sm font-medium border transition-all flex flex-col items-center justify-center gap-1 ${
+                        isBooked 
+                          ? "bg-neutral-100 text-neutral-400 border-neutral-200 cursor-not-allowed opacity-60" 
+                          : isSelected
+                            ? "bg-pink-500 text-white border-pink-500 shadow-md shadow-pink-500/20" 
+                            : "bg-white text-neutral-700 border-neutral-200 hover:border-pink-300 active:bg-pink-50"
+                      }`}
+                    >
+                      <span>{slot.label}</span>
+                      {isBooked && <span className="text-[10px] uppercase tracking-wider font-bold">Booked</span>}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
@@ -282,7 +268,7 @@ export function BookingForm({ existingBookings }: { existingBookings: Booking[] 
                 handleSubmit(formData);
               }
             }}
-            disabled={isPending}
+            disabled={isPending || !time}
             className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 text-white font-bold py-4 rounded-xl shadow-lg shadow-pink-500/30 transition-all flex items-center justify-center gap-2 text-lg select-none"
           >
             {isPending ? (
