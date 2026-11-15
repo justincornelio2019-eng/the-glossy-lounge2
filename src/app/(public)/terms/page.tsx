@@ -1,12 +1,11 @@
 // src/app/(public)/terms/page.tsx
 import { Navbar } from "@/components/layout/Navbar";
-import Link from "next/link";
 
 export default function TermsPage() {
   return (
-    <div className="bg-neutral-50 pb-24 md:pb-12 overflow-x-hidden">
+    <div className="bg-neutral-50 overflow-x-hidden">
       <Navbar />
-      <div className="max-w-3xl mx-auto px-4 pt-12 pb-12 w-full">
+      <div className="max-w-3xl mx-auto px-4 pt-8 pb-12 w-full">
         <h1 className="font-serif text-3xl md:text-4xl font-bold text-neutral-900 mb-6">Terms of Service</h1>
         <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-neutral-200 space-y-6 text-neutral-600 text-sm leading-relaxed">
           
