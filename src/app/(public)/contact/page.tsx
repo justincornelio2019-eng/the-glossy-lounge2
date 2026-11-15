@@ -1,7 +1,8 @@
 ﻿// src/app/(public)/contact/page.tsx
 import { Navbar } from "@/components/layout/Navbar";
-import { MapPin, Clock, Bike, Phone, Mail, Camera, ChevronRight } from "lucide-react";
+import { MapPin, Clock, Bike, Phone, Mail, Camera, ChevronRight, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { FacebookIcon } from "@/components/icons/SocialIcons";
 
 export default function ContactPage() {
   return (
@@ -45,7 +46,6 @@ export default function ContactPage() {
               <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500 shrink-0" />
             </a>
 
-            {/* Updated Instagram Link */}
             <a 
               href="https://www.instagram.com/theglossylounge/" 
               target="_blank" 
@@ -58,6 +58,23 @@ export default function ContactPage() {
               <div className="min-w-0">
                 <p className="font-medium text-neutral-900">Instagram</p>
                 <p className="text-sm text-neutral-500 truncate">@theglossylounge</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500 shrink-0" />
+            </a>
+
+            {/* NEW FACEBOOK LINK */}
+            <a 
+              href="https://www.facebook.com/theglossylounge" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="flex items-center gap-4 p-4 rounded-2xl border border-neutral-100 hover:border-pink-300 hover:bg-pink-50 transition-colors group"
+            >
+              <div className="p-3 bg-pink-100 text-pink-600 rounded-full group-hover:bg-pink-200 transition-colors shrink-0">
+                <FacebookIcon className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium text-neutral-900">Facebook</p>
+                <p className="text-sm text-neutral-500 truncate">The Glossy Lounge</p>
               </div>
               <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500 shrink-0" />
             </a>
@@ -114,13 +131,17 @@ export default function ContactPage() {
             />
           </div>
 
-          {/* CTA */}
-          <div className="bg-neutral-900 rounded-3xl p-8 text-center text-white shadow-lg">
-            <h2 className="font-serif text-2xl font-bold mb-2">Ready for your glow up?</h2>
-            <p className="text-neutral-300 mb-6 text-sm">Secure your slot online. No waiting.</p>
+          {/* UPGRADED PINK CTA BOX */}
+          <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-3xl p-8 text-center border border-pink-200 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mt-8 -mr-8 text-pink-200 opacity-50">
+              <Sparkles className="w-32 h-32" />
+            </div>
+            
+            <h2 className="font-serif text-2xl font-bold text-neutral-900 mb-2 relative z-10">Ready for your glow up?</h2>
+            <p className="text-neutral-600 mb-6 text-sm relative z-10">Secure your slot online. No waiting.</p>
             <Link 
               href="/book" 
-              className="inline-block bg-pink-500 hover:bg-pink-600 text-white font-bold px-8 py-3 rounded-full transition-colors"
+              className="inline-block bg-neutral-900 hover:bg-neutral-800 text-white font-bold px-8 py-3 rounded-xl transition-colors relative z-10 shadow-lg"
             >
               Book an Appointment
             </Link>
