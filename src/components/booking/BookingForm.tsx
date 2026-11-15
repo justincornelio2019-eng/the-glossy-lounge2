@@ -29,8 +29,11 @@ export function BookingForm({
 }) {
   const [isPending, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   
+  // State for tracking field-specific errors
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [generalError, setGeneralError] = useState<string | null>(null);
+
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState<string>("");
   const [inspoFile, setInspoFile] = useState<File | null>(null);
@@ -49,21 +52,34 @@ export function BookingForm({
     .map((b) => b.appointment_time.substring(0, 5));
 
   async function handleSubmit(formData: FormData) {
-    setError(null);
+    setFieldErrors({});
+    setGeneralError(null);
     
-    if (!date || !time) {
-      setError("Please select both a date and a time.");
+    // Frontend validation (The instant feedback)
+    const errors: Record<string, string> = {};
+    if (!date) errors.date = "Please select a date.";
+    if (!time) errors.time = "Please select a time slot.";
+    if (!formData.get("name")) errors.name = "Full name is required.";
+    if (!formData.get("phone")) errors.phone = "Phone number is required.";
+    if (!formData.get("email")) errors.email = "Email is required.";
+    if (!formData.get("gcashRef")) errors.gcashRef = "GCash reference is required.";
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
     if (bookedTimesForSelectedDate.includes(time)) {
-      setError("Sorry, this time slot has just been booked. Please pick another.");
+      setGeneralError("Sorry, this time slot has just been booked. Please pick another.");
       return;
     }
     
+    // TypeScript fix: We know date is defined here because of the checks above
+    const safeDate = date!; 
+
     const data = new FormData();
     formData.forEach((value, key) => data.append(key, value));
-    data.append("date", format(date, "yyyy-MM-dd"));
+    data.append("date", format(safeDate, "yyyy-MM-dd"));
     data.append("time", time);
     if (inspoFile) data.append("inspoFile", inspoFile);
 
@@ -72,7 +88,8 @@ export function BookingForm({
       if (result.success) {
         setIsSuccess(true);
       } else {
-        setError(result.error || "An unknown error occurred");
+        // If the server (Zod) rejects it, we show it in the general error box
+        setGeneralError(result.error || "An unknown error occurred");
       }
     });
   }
@@ -115,10 +132,10 @@ export function BookingForm({
 
       <div className="p-6 space-y-8">
         
-        {error && (
-          <div className="p-4 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100 flex items-start gap-3">
+        {generalError && (
+          <div className="p-4 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100 flex items-start gap-3 animate-in fade-in">
             <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-            <p>{error}</p>
+            <p>{generalError}</p>
           </div>
         )}
 
@@ -130,14 +147,14 @@ export function BookingForm({
           </div>
 
           {/* Calendar */}
-          <div className="flex justify-center bg-neutral-50 rounded-2xl p-4 border border-neutral-100 overflow-hidden">
+          <div className={`flex justify-center bg-neutral-50 rounded-2xl p-4 border overflow-hidden transition-colors ${fieldErrors.date ? 'border-red-300' : 'border-neutral-100'}`}>
             <DayPicker
               mode="single"
               selected={date}
               onSelect={(newDate) => {
                 setDate(newDate);
                 setTime(""); 
-                setError(null);
+                setFieldErrors(prev => ({ ...prev, date: "", time: "" }));
               }}
               disabled={{ before: new Date() }}
               className="!w-full max-w-[320px] mx-auto"
@@ -147,6 +164,7 @@ export function BookingForm({
               }}
             />
           </div>
+          {fieldErrors.date && <p className="text-xs text-red-500 font-medium">{fieldErrors.date}</p>}
 
           {/* Time Slots Grid */}
           {date && (
@@ -156,7 +174,7 @@ export function BookingForm({
                 Available times for {format(date, "MMM d, yyyy")}
               </p>
               
-              <div className="grid grid-cols-2 gap-3">
+              <div className={`grid grid-cols-2 gap-3 p-1 -m-1 rounded-xl ${fieldErrors.time ? 'border border-red-300 bg-red-50/50' : ''}`}>
                 {timeSlots.map((slot) => {
                   const isBooked = bookedTimesForSelectedDate.includes(slot.value);
                   const isSelected = time === slot.value;
@@ -166,7 +184,10 @@ export function BookingForm({
                       key={slot.value}
                       type="button"
                       disabled={isBooked}
-                      onClick={() => setTime(slot.value)}
+                      onClick={() => {
+                        setTime(slot.value);
+                        setFieldErrors(prev => ({ ...prev, time: "" }));
+                      }}
                       className={`py-3 px-2 rounded-xl text-sm font-medium border transition-all flex flex-col items-center justify-center gap-1 ${
                         isBooked 
                           ? "bg-neutral-100 text-neutral-400 border-neutral-200 cursor-not-allowed opacity-60" 
@@ -181,6 +202,7 @@ export function BookingForm({
                   );
                 })}
               </div>
+              {fieldErrors.time && <p className="text-xs text-red-500 font-medium mt-2">{fieldErrors.time}</p>}
             </div>
           )}
         </div>
@@ -200,17 +222,38 @@ export function BookingForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-neutral-700">Full Name *</label>
-                <input type="text" name="name" required placeholder="Jane Doe" className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-transparent text-base transition-all" />
+                <input 
+                  type="text" 
+                  name="name" 
+                  onChange={() => setFieldErrors(prev => ({ ...prev, name: "" }))}
+                  placeholder="Jane Doe" 
+                  className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-500 focus:border-transparent text-base transition-all ${fieldErrors.name ? 'border-red-300 bg-red-50' : 'border-neutral-200'}`} 
+                />
+                {fieldErrors.name && <p className="text-xs text-red-500 font-medium">{fieldErrors.name}</p>}
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-neutral-700">Phone Number *</label>
-                <input type="tel" name="phone" required placeholder="0912 345 6789" className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-transparent text-base transition-all" />
+                <input 
+                  type="tel" 
+                  name="phone" 
+                  onChange={() => setFieldErrors(prev => ({ ...prev, phone: "" }))}
+                  placeholder="0912 345 6789" 
+                  className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-500 focus:border-transparent text-base transition-all ${fieldErrors.phone ? 'border-red-300 bg-red-50' : 'border-neutral-200'}`} 
+                />
+                {fieldErrors.phone && <p className="text-xs text-red-500 font-medium">{fieldErrors.phone}</p>}
               </div>
             </div>
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-neutral-700">Email Address *</label>
-              <input type="email" name="email" required placeholder="jane@example.com" className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-transparent text-base transition-all" />
+              <input 
+                type="email" 
+                name="email" 
+                onChange={() => setFieldErrors(prev => ({ ...prev, email: "" }))}
+                placeholder="jane@example.com" 
+                className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-500 focus:border-transparent text-base transition-all ${fieldErrors.email ? 'border-red-300 bg-red-50' : 'border-neutral-200'}`} 
+              />
+              {fieldErrors.email && <p className="text-xs text-red-500 font-medium">{fieldErrors.email}</p>}
             </div>
 
             <div className="space-y-1.5">
@@ -267,8 +310,18 @@ export function BookingForm({
 
             <div className="space-y-1.5 pt-2">
               <label className="text-sm font-medium text-neutral-700">GCash Reference Number *</label>
-              <input type="text" name="gcashRef" required placeholder="e.g. 1234 567 890123" className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-transparent text-base transition-all" />
-              <p className="text-xs text-neutral-500 mt-1">Please enter the 13-digit reference number from your GCash receipt.</p>
+              <input 
+                type="text" 
+                name="gcashRef" 
+                onChange={() => setFieldErrors(prev => ({ ...prev, gcashRef: "" }))}
+                placeholder="e.g. 1234 567 890123" 
+                className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-500 focus:border-transparent text-base transition-all ${fieldErrors.gcashRef ? 'border-red-300 bg-red-50' : 'border-neutral-200'}`} 
+              />
+              {fieldErrors.gcashRef ? (
+                <p className="text-xs text-red-500 font-medium">{fieldErrors.gcashRef}</p>
+              ) : (
+                <p className="text-xs text-neutral-500 mt-1">Please enter the 13-digit reference number from your GCash receipt.</p>
+              )}
             </div>
           </div>
 
@@ -283,7 +336,7 @@ export function BookingForm({
                   handleSubmit(formData);
                 }
               }}
-              disabled={isPending || !time}
+              disabled={isPending}
               className="w-full bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-300 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-lg select-none"
             >
               {isPending ? (
