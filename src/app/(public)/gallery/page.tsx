@@ -11,10 +11,10 @@ export default async function GalleryPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24 md:pb-12">
+    <div className="bg-neutral-50 pb-24 md:pb-12">
       <Navbar />
       
-      <div className="max-w-5xl mx-auto px-4 pt-8 pb-12">
+      <div className="max-w-5xl mx-auto px-4 pt-8 pb-8">
         
         {/* Header */}
         <div className="text-center mb-8">

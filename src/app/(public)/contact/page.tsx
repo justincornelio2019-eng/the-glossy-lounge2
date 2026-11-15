@@ -6,13 +6,13 @@ import { FacebookIcon } from "@/components/icons/SocialIcons";
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24 md:pb-12 overflow-x-hidden">
+    <div className="bg-neutral-50 pb-24 md:pb-12 overflow-x-hidden">
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-4 pt-8 pb-12 w-full">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="font-serif text-3xl md:text-4xl font-bold text-neutral-900 mb-4">Visit Us</h1>
+        <div className="text-center mb-10">
+          <h1 className="font-serif text-3xl md:text-4xl font-bold text-neutral-900 mb-3">Visit Us</h1>
           <p className="text-neutral-600 text-base md:text-lg">
             We can't wait to see you. Here's everything you need to know to find us.
           </p>
@@ -62,7 +62,6 @@ export default function ContactPage() {
               <ChevronRight className="w-5 h-5 text-neutral-300 ml-auto group-hover:text-pink-500 shrink-0" />
             </a>
 
-            {/* NEW FACEBOOK LINK */}
             <a 
               href="https://www.facebook.com/theglossylounge" 
               target="_blank" 
@@ -131,7 +130,7 @@ export default function ContactPage() {
             />
           </div>
 
-          {/* UPGRADED PINK CTA BOX */}
+          {/* PINK CTA BOX */}
           <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-3xl p-8 text-center border border-pink-200 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 -mt-8 -mr-8 text-pink-200 opacity-50">
               <Sparkles className="w-32 h-32" />
