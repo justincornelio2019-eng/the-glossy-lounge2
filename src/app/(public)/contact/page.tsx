@@ -1,12 +1,11 @@
 ﻿// src/app/(public)/contact/page.tsx
 import { Navbar } from "@/components/layout/Navbar";
-import { MapPin, Clock, Bike, Phone, Mail, Camera, ChevronRight, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { MapPin, Clock, Bike, Phone, Mail, Camera, ChevronRight } from "lucide-react";
 import { FacebookIcon } from "@/components/icons/SocialIcons";
 
 export default function ContactPage() {
   return (
-    <div className="bg-neutral-50 pb-24 md:pb-12 overflow-x-hidden">
+    <div className="bg-neutral-50 overflow-x-hidden">
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-4 pt-8 pb-12 w-full">
@@ -128,22 +127,6 @@ export default function ContactPage() {
               referrerPolicy="no-referrer-when-downgrade"
               className="absolute inset-0 w-full h-full"
             />
-          </div>
-
-          {/* PINK CTA BOX */}
-          <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-3xl p-8 text-center border border-pink-200 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 -mt-8 -mr-8 text-pink-200 opacity-50">
-              <Sparkles className="w-32 h-32" />
-            </div>
-            
-            <h2 className="font-serif text-2xl font-bold text-neutral-900 mb-2 relative z-10">Ready for your glow up?</h2>
-            <p className="text-neutral-600 mb-6 text-sm relative z-10">Secure your slot online. No waiting.</p>
-            <Link 
-              href="/book" 
-              className="inline-block bg-neutral-900 hover:bg-neutral-800 text-white font-bold px-8 py-3 rounded-xl transition-colors relative z-10 shadow-lg"
-            >
-              Book an Appointment
-            </Link>
           </div>
 
         </div>
