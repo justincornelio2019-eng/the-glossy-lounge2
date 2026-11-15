@@ -2,28 +2,45 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { format } from "date-fns";
-import { Clock, Upload, CheckCircle2, ChevronLeft, Loader2, PartyPopper } from "lucide-react";
+import { format, parse } from "date-fns";
+import { Clock, Upload, CheckCircle2, ChevronLeft, Loader2, PartyPopper, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css"; 
 import { submitBooking } from "@/app/(public)/book/actions";
 
-export function BookingForm() {
+interface Booking {
+  appointment_date: string;
+  appointment_time: string;
+}
+
+export function BookingForm({ existingBookings }: { existingBookings: Booking[] }) {
   const [isPending, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Store date as a Date object
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState<string>("");
   const [inspoFile, setInspoFile] = useState<File | null>(null);
+
+  // Find all booked times for the currently selected date
+  const bookedTimesForSelectedDate = date 
+    ? existingBookings
+        .filter(b => b.appointment_date === format(date, "yyyy-MM-dd"))
+        .map(b => b.appointment_time)
+    : [];
 
   async function handleSubmit(formData: FormData) {
     setError(null);
     
     if (!date || !time) {
       setError("Please select both a date and a time.");
+      return;
+    }
+
+    // Check for double booking before submitting
+    if (bookedTimesForSelectedDate.includes(time)) {
+      setError("Sorry, this time slot is already booked. Please pick another time.");
       return;
     }
     
@@ -92,12 +109,13 @@ export function BookingForm() {
       <div className="p-6 space-y-8">
         
         {error && (
-          <div className="p-4 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100">
-            {error}
+          <div className="p-4 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100 flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <p>{error}</p>
           </div>
         )}
 
-        {/* STEP 1: Date & Time (OUTSIDE THE FORM) */}
+        {/* STEP 1: Date & Time */}
         <div className="space-y-4 relative z-20">
           <div className="flex items-center gap-2 mb-2">
             <span className="flex items-center justify-center w-6 h-6 rounded-full bg-pink-100 text-pink-600 text-xs font-bold">1</span>
@@ -112,6 +130,7 @@ export function BookingForm() {
               onSelect={(newDate) => {
                 setDate(newDate);
                 setTime(""); // Reset time if date changes
+                setError(null); // Clear errors
               }}
               disabled={{ before: new Date() }}
               className="!w-full max-w-[320px] mx-auto"
@@ -122,7 +141,7 @@ export function BookingForm() {
             />
           </div>
 
-          {/* Native Time Picker (Replaces availableTimes buttons) */}
+          {/* Native Time Picker */}
           {date && (
             <div className="mt-4 relative z-10 animate-in fade-in slide-in-from-top-2">
               <label className="text-sm font-medium text-neutral-700 mb-2 flex items-center gap-2">
@@ -135,17 +154,37 @@ export function BookingForm() {
                   min="10:00"
                   max="21:00"
                   value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="w-full px-4 py-4 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-pink-400 text-base bg-white appearance-none cursor-pointer"
+                  onChange={(e) => {
+                    setTime(e.target.value);
+                    setError(null);
+                  }}
+                  className={`w-full px-4 py-4 rounded-xl border focus:ring-2 focus:ring-pink-400 text-base bg-white appearance-none cursor-pointer ${
+                    bookedTimesForSelectedDate.includes(time) ? "border-red-300 bg-red-50" : "border-neutral-200"
+                  }`}
                   required
                 />
-                {/* Show a formatted preview of their chosen time */}
                 {time && (
-                  <p className="text-xs text-pink-600 font-medium mt-2">
-                    Selected: {formatTimeDisplay(time)}
+                  <p className={`text-xs font-medium mt-2 ${bookedTimesForSelectedDate.includes(time) ? "text-red-600" : "text-pink-600"}`}>
+                    {bookedTimesForSelectedDate.includes(time) 
+                      ? "This time is already booked. Please pick another." 
+                      : `Selected: ${formatTimeDisplay(time)}`}
                   </p>
                 )}
               </div>
+
+              {/* Show booked times for this date to help the user */}
+              {bookedTimesForSelectedDate.length > 0 && (
+                <div className="mt-3 p-3 bg-neutral-50 rounded-xl border border-neutral-100">
+                  <p className="text-xs text-neutral-500 font-medium mb-1">Already Booked:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {bookedTimesForSelectedDate.map((bt, i) => (
+                      <span key={i} className="text-xs bg-white border border-neutral-200 text-neutral-600 px-2 py-1 rounded-md line-through">
+                        {formatTimeDisplay(bt)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
