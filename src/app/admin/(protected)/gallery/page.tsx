@@ -1,7 +1,7 @@
 ﻿// src/app/admin/(protected)/gallery/page.tsx
 import { createClient } from "@/lib/supabase/server";
 import { GalleryUploader } from "@/components/admin/GalleryUploader";
-import { Trash2 } from "lucide-react";
+import { DeleteImageButton } from "@/components/admin/DeleteImageButton";
 
 export default async function AdminGalleryPage() {
   const supabase = await createClient();
@@ -44,10 +44,8 @@ export default async function AdminGalleryPage() {
                     </div>
                   )}
                   
-                  {/* Delete Button (We'll wire this up next) */}
-                  <button className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {/* The new Delete Button */}
+                  <DeleteImageButton id={img.id} publicId={img.cloudinary_public_id} />
                 </div>
               ))}
             </div>

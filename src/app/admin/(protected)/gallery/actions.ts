@@ -43,7 +43,7 @@ export async function uploadGalleryImage(formData: FormData) {
       image_url: uploadResponse.secure_url,
       cloudinary_public_id: uploadResponse.public_id,
       caption: caption || null,
-      sort_order: 0, // Will implement drag-and-drop sorting later
+      sort_order: 0,
     });
 
     if (error) {
@@ -53,10 +53,39 @@ export async function uploadGalleryImage(formData: FormData) {
 
     revalidatePath("/gallery");
     revalidatePath("/admin/gallery");
+    revalidatePath("/");
     return { success: true };
 
   } catch (error) {
     console.error("Upload Error:", error);
     return { success: false, error: "Something went wrong during upload." };
+  }
+}
+
+export async function deleteGalleryImage(id: string, publicId: string) {
+  try {
+    const supabase = createAdminClient();
+
+    // 1. Delete from Cloudinary
+    await cloudinary.uploader.destroy(publicId);
+
+    // 2. Delete from Supabase
+    const { error } = await supabase
+      .from("gallery_images")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Supabase Delete Error:", error);
+      return { success: false, error: "Failed to delete from database." };
+    }
+
+    revalidatePath("/gallery");
+    revalidatePath("/admin/gallery");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Delete Error:", error);
+    return { success: false, error: "Something went wrong." };
   }
 }
