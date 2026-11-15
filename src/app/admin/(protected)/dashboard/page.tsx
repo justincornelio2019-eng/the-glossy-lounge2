@@ -1,9 +1,9 @@
 ﻿// src/app/admin/(protected)/dashboard/page.tsx
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
-import { Calendar, Clock, Phone, Mail, Image as ImageIcon, CheckCircle2, XCircle } from "lucide-react";
+import { Calendar, Clock, Phone, Mail, Image as ImageIcon, CheckCircle2 } from "lucide-react";
 import { BookingActions } from "@/components/admin/BookingActions";
-import Link from "next/link";
+import { AdminCalendar } from "@/components/admin/AdminCalendar";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -11,11 +11,12 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Fetch all bookings, newest first
+  // Fetch all bookings, sorted by date so the calendar makes sense
   const { data: bookings, error } = await supabase
     .from("bookings")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("appointment_date", { ascending: true })
+    .order("appointment_time", { ascending: true });
 
   if (error) {
     return (
@@ -25,11 +26,13 @@ export default async function DashboardPage() {
     );
   }
 
+  // Split into three categories
   const pendingBookings = bookings?.filter(b => b.status === "pending") || [];
-  const otherBookings = bookings?.filter(b => b.status !== "pending") || [];
+  const confirmedBookings = bookings?.filter(b => b.status === "confirmed") || [];
+  const otherBookings = bookings?.filter(b => b.status === "declined" || b.status === "completed") || [];
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-10 pb-12">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-neutral-900">Dashboard</h1>
@@ -38,22 +41,22 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Pending Bookings Section */}
-      <div>
-        <h2 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-          Pending Requests
-          <span className="bg-pink-100 text-pink-700 py-0.5 px-2.5 rounded-full text-xs font-bold">
-            {pendingBookings.length}
-          </span>
-        </h2>
+      {/* NEW: Schedule Calendar */}
+      <section>
+        <h2 className="text-lg font-semibold text-neutral-900 mb-4">Schedule Overview</h2>
+        <AdminCalendar bookings={bookings || []} />
+      </section>
 
-        {pendingBookings.length === 0 ? (
-          <div className="bg-white p-8 rounded-3xl border border-neutral-200 text-center text-neutral-500 shadow-sm">
-            <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-3 opacity-50" />
-            <p>You're all caught up!</p>
-            <p className="text-xs text-neutral-400 mt-1">No pending booking requests right now.</p>
-          </div>
-        ) : (
+      {/* Pending Bookings Section */}
+      {pendingBookings.length > 0 && (
+        <section>
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+            Pending Requests
+            <span className="bg-pink-100 text-pink-700 py-0.5 px-2.5 rounded-full text-xs font-bold">
+              {pendingBookings.length}
+            </span>
+          </h2>
+
           <div className="grid gap-5">
             {pendingBookings.map((booking) => (
               <div key={booking.id} className="bg-white rounded-3xl border border-neutral-200 p-5 shadow-sm overflow-hidden relative">
@@ -99,14 +102,6 @@ export default async function DashboardPage() {
                           {booking.client_email}
                         </a>
                       </div>
-                      {booking.client_instagram && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-neutral-400 font-bold text-[10px] shrink-0 w-4 text-center">IG</span>
-                          <a href={`https://instagram.com/${booking.client_instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="hover:text-pink-600">
-                            {booking.client_instagram}
-                          </a>
-                        </div>
-                      )}
                     </div>
                   </div>
 
@@ -131,33 +126,57 @@ export default async function DashboardPage() {
                       </div>
                     )}
 
-                    {/* Client component for Confirm/Decline buttons */}
-                    <BookingActions bookingId={booking.id} />
+                    <BookingActions booking={booking} />
                   </div>
 
                 </div>
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </section>
+      )}
+
+      {/* Confirmed Upcoming Bookings */}
+      {confirmedBookings.length > 0 && (
+        <section>
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">
+            Upcoming Confirmed
+          </h2>
+          <div className="grid gap-4">
+            {confirmedBookings.map((booking) => (
+              <div key={booking.id} className="bg-white p-4 rounded-2xl border border-green-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
+                <div>
+                  <p className="font-bold text-lg text-neutral-900">{booking.client_name}</p>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    {format(new Date(booking.appointment_date), "MMM d, yyyy")} at {booking.appointment_time}
+                  </p>
+                </div>
+                {/* Pass the full booking object */}
+                <div className="w-full md:w-64">
+                  <BookingActions booking={booking} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* History / Other Bookings Section */}
       {otherBookings.length > 0 && (
-        <div>
+        <section>
           <h2 className="text-lg font-semibold text-neutral-900 mb-4 mt-8">
             Recent History
           </h2>
           <div className="grid gap-3">
             {otherBookings.map((booking) => (
-              <div key={booking.id} className="bg-white p-4 rounded-2xl border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div key={booking.id} className="bg-white p-4 rounded-2xl border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 opacity-80 hover:opacity-100 transition-opacity">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <p className="font-semibold text-neutral-900">{booking.client_name}</p>
                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider font-bold ${
+                      booking.status === "completed" ? "bg-neutral-200 text-neutral-600" : 
                       booking.status === "confirmed" ? "bg-green-100 text-green-700" : 
-                      booking.status === "declined" ? "bg-red-100 text-red-700" : 
-                      "bg-neutral-100 text-neutral-600"
+                      "bg-red-100 text-red-700"
                     }`}>
                       {booking.status}
                     </span>
@@ -174,7 +193,7 @@ export default async function DashboardPage() {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

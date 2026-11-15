@@ -28,3 +28,35 @@ export async function updateBookingStatus(
   revalidatePath("/admin/dashboard");
   return { success: true };
 }
+
+// ... (keep your existing updateBookingStatus function) ...
+
+export async function markBookingComplete(bookingId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({ status: "completed" })
+    .eq("id", bookingId);
+
+  if (error) return { error: error.message };
+  revalidatePath("/admin/dashboard");
+  return { success: true };
+}
+
+export async function rescheduleBooking(bookingId: string, newDate: string, newTime: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({ appointment_date: newDate, appointment_time: newTime, status: "confirmed" })
+    .eq("id", bookingId);
+
+  if (error) return { error: error.message };
+  revalidatePath("/admin/dashboard");
+  return { success: true };
+}
