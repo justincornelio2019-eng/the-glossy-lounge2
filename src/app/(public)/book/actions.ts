@@ -6,6 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { revalidatePath } from "next/cache";
 import { Resend } from "resend";
 import { adminBookingEmail } from "@/lib/email/templates";
+import { z } from "zod";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -17,27 +18,62 @@ cloudinary.config({
 // Configure Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// 1. Define the strict validation schema with Zod
+const BookingSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+  time: z.enum(["10:00", "13:00", "16:00", "19:00"], { message: "Invalid time slot" }),
+  
+  // Strictly required fields
+  name: z.string().min(1, "Full name is required").max(100, "Name is too long"),
+  phone: z.string().min(1, "Phone number is required").max(20, "Invalid phone number"),
+  email: z.string().min(1, "Email is required").email("Invalid email address"),
+  gcashRef: z.string().min(1, "GCash reference number is required").max(50, "GCash reference is too long"),
+  
+  // Optional field
+  instagram: z.string().max(50).optional().nullable(),
+});
+
 type CloudinaryResponse = { secure_url: string };
 
 export async function submitBooking(formData: FormData) {
   try {
-    const date = formData.get("date") as string;
-    const time = formData.get("time") as string;
-    const name = formData.get("name") as string;
-    const phone = formData.get("phone") as string;
-    const email = formData.get("email") as string;
-    const instagram = formData.get("instagram") as string;
-    const gcashRef = formData.get("gcashRef") as string;
+    // Extract raw data
+    const rawData = {
+      date: formData.get("date") as string,
+      time: formData.get("time") as string,
+      name: formData.get("name") as string,
+      phone: formData.get("phone") as string,
+      email: formData.get("email") as string,
+      instagram: formData.get("instagram") as string,
+      gcashRef: formData.get("gcashRef") as string,
+    };
+
     const inspoFile = formData.get("inspoFile") as File | null;
 
-    if (!date || !time || !name || !phone || !email || !gcashRef) {
-      return { success: false, error: "Please fill in all required fields." };
+    // 2. Validate with Zod
+    const validatedData = BookingSchema.safeParse(rawData);
+
+    if (!validatedData.success) {
+      // Return the first validation error to the user
+      const firstError = validatedData.error.issues[0].message;
+      return { success: false, error: firstError };
     }
+
+    const { date, time, name, phone, email, instagram, gcashRef } = validatedData.data;
 
     let inspoImageUrl = null;
 
-    // 1. Upload Inspo Image to Cloudinary (if provided)
+    // 3. Secure File Upload
     if (inspoFile && inspoFile.size > 0) {
+      // Check if it's actually an image
+      if (!inspoFile.type.startsWith("image/")) {
+        return { success: false, error: "Inspo file must be an image." };
+      }
+      // Check file size (Max 5MB)
+      if (inspoFile.size > 5 * 1024 * 1024) {
+        return { success: false, error: "Inspo image must be under 5MB." };
+      }
+
       const arrayBuffer = await inspoFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
@@ -54,7 +90,7 @@ export async function submitBooking(formData: FormData) {
       inspoImageUrl = uploadResponse.secure_url;
     }
 
-    // 2. Save to Supabase
+    // 4. Save to Supabase
     const supabase = createAdminClient();
     
     const { error } = await supabase.from("bookings").insert({
@@ -75,10 +111,10 @@ export async function submitBooking(formData: FormData) {
       return { success: false, error: "Failed to save booking. Please try again." };
     }
 
-    // 3. Send Email Notification to Admin
+    // 5. Send Email Notification to Admin
     try {
       await resend.emails.send({
-        from: process.env.FROM_EMAIL || "onboarding@resend.dev", // You can only use onboarding@resend.dev until you verify your domain
+        from: process.env.FROM_EMAIL || "onboarding@resend.dev", 
         to: process.env.ADMIN_EMAIL as string,
         subject: `New Booking: ${name} on ${date}`,
         html: adminBookingEmail({
@@ -92,7 +128,6 @@ export async function submitBooking(formData: FormData) {
       });
     } catch (emailError) {
       console.error("Failed to send admin email:", emailError);
-      // We don't return an error here because the booking was still saved successfully
     }
 
     revalidatePath("/admin/dashboard"); 
